@@ -19,6 +19,18 @@ class WaterPourActivity : AppCompatActivity() {
             insets
         }
 
+        val settingsButton: Button = findViewById(R.id.button)
+        settingsButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+
+        val drinkButton: Button = findViewById(R.id.button2)
+        drinkButton.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
+
         val button100ml: Button = findViewById(R.id.button3)
         val button150ml: Button = findViewById(R.id.button4)
         val button200ml: Button = findViewById(R.id.button5)
