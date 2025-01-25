@@ -30,5 +30,12 @@ class WaterPourActivity : AppCompatActivity() {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
+
+        val button100ml: Button = findViewById(R.id.button3)
+        val button150ml: Button = findViewById(R.id.button4)
+        val button200ml: Button = findViewById(R.id.button5)
+        val button250ml: Button = findViewById(R.id.button6)
+        val button300ml: Button = findViewById(R.id.button7)
+        val button350ml: Button = findViewById(R.id.button8)
     }
 }
