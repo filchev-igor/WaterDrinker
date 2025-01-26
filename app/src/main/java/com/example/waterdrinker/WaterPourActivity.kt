@@ -19,16 +19,36 @@ class WaterPourActivity : AppCompatActivity() {
             insets
         }
 
-        val drinkButton: Button = findViewById(R.id.button)
-        drinkButton.setOnClickListener {
+        val settingsButton: Button = findViewById(R.id.button)
+        settingsButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
 
-        val settingsButton: Button = findViewById(R.id.button2)
-        settingsButton.setOnClickListener {
+        val drinkButton: Button = findViewById(R.id.button2)
+        drinkButton.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
+
+        val button100ml: Button = findViewById(R.id.button3)
+        val button150ml: Button = findViewById(R.id.button4)
+        val button200ml: Button = findViewById(R.id.button5)
+        val button250ml: Button = findViewById(R.id.button6)
+        val button300ml: Button = findViewById(R.id.button7)
+        val button350ml: Button = findViewById(R.id.button8)
+
+        button100ml.setOnClickListener { sendResultAndFinish(100) }
+        button150ml.setOnClickListener { sendResultAndFinish(150) }
+        button200ml.setOnClickListener { sendResultAndFinish(200) }
+        button250ml.setOnClickListener { sendResultAndFinish(250) }
+        button300ml.setOnClickListener { sendResultAndFinish(300) }
+        button350ml.setOnClickListener { sendResultAndFinish(350) }
+    }
+
+    private fun sendResultAndFinish(amount: Int) {
+        val intent = Intent().apply { putExtra("WATER_AMOUNT", amount) }
+        setResult(RESULT_OK, intent)
+        finish()
     }
 }
