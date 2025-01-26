@@ -22,8 +22,10 @@ import java.util.Calendar
 private val android.content.Context.dataStore by preferencesDataStore("water_tracker")
 
 class MainActivity : AppCompatActivity() {
+
     private val yesterdayAmountKey = intPreferencesKey("yesterday_amount")
     private val todayAmountKey = intPreferencesKey("today_amount")
+    private val waterGoalKey = intPreferencesKey("water_goal")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,13 +84,16 @@ class MainActivity : AppCompatActivity() {
     private fun updateDisplayedAmounts() {
         val yesterdayTextView: TextView = findViewById(R.id.textView2)
         val todayTextView: TextView = findViewById(R.id.textView3)
+        val waterConsumptionGoalAmountTextView: TextView = findViewById(R.id.textView7)
 
         lifecycleScope.launch {
             val yesterdayAmount = readFromDataStore(yesterdayAmountKey).first()
             val todayAmount = readFromDataStore(todayAmountKey).first()
+            val waterConsumptionGoalAmount = readFromDataStore(waterGoalKey).first()
 
             yesterdayTextView.text = "$yesterdayAmount ml"
             todayTextView.text = "$todayAmount ml"
+            waterConsumptionGoalAmountTextView.text = "$waterConsumptionGoalAmount ml"
         }
     }
 
