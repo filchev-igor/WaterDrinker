@@ -69,23 +69,32 @@ class MainActivity : AppCompatActivity() {
         }
 
     private fun resetAtMidnight() {
-        val calendar = Calendar.getInstance()
-        val now = calendar.timeInMillis
-        val midnight = calendar.apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.timeInMillis
+        val currentDateKey = intPreferencesKey("current_date") // Key for storing the current date (YYYYMMDD format)
 
-        if (now >= midnight) {
-            lifecycleScope.launch {
+        lifecycleScope.launch {
+            // Get the stored date
+            val storedDate = DataStoreManager.readValue(this@MainActivity, currentDateKey, 0)
+
+            // Get today's date in YYYYMMDD format
+            val calendar = Calendar.getInstance()
+            val today = calendar.get(Calendar.YEAR) * 10000 +
+                    (calendar.get(Calendar.MONTH) + 1) * 100 +
+                    calendar.get(Calendar.DAY_OF_MONTH)
+
+            // If the stored date is not today, reset today's amount
+            if (storedDate != today) {
                 val todayAmount = DataStoreManager.readValue(this@MainActivity, todayAmountKey, 0)
+
+                // Save today's amount to yesterday and reset today's amount
                 DataStoreManager.saveValue(this@MainActivity, yesterdayAmountKey, todayAmount)
                 DataStoreManager.saveValue(this@MainActivity, todayAmountKey, 0)
+
+                // Update the stored date to today
+                DataStoreManager.saveValue(this@MainActivity, currentDateKey, today)
             }
         }
     }
+
 
     private fun updateDisplayedAmounts() {
         val yesterdayTextView: TextView = findViewById(R.id.textView2)

@@ -30,8 +30,8 @@ class SettingsActivity : AppCompatActivity() {
             insets
         }
 
-        val settingsButton: Button = findViewById(R.id.button)
-        settingsButton.setOnClickListener {
+        val mainActivityButton: Button = findViewById(R.id.button)
+        mainActivityButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
