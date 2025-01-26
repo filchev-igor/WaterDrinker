@@ -1,7 +1,8 @@
 package com.example.waterdrinker
 
 import android.os.Bundle
-import android.widget.Button
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -37,29 +38,36 @@ class SettingsActivity : AppCompatActivity() {
             insets
         }
 
-        val editText = findViewById<EditText>(R.id.editTextNumberSigned)
-        val saveButton = findViewById<Button>(R.id.button)
+        val editText : EditText = findViewById(R.id.editTextNumberSigned)
+
 
         // Load current goal and set it in EditText
         lifecycleScope.launch {
             val currentGoal = readWaterGoal()
-
             editText.setText(String.format(Locale.getDefault(), "%d", currentGoal))
-
         }
 
-        // Save the water goal when the save button is clicked
-        saveButton.setOnClickListener {
-            val newGoal = editText.text.toString().toIntOrNull()
-            if (newGoal != null) {
-                lifecycleScope.launch {
-                    saveWaterGoal(newGoal) // Save the new goal to DataStore
-                    Toast.makeText(this@SettingsActivity, "Goal saved successfully!", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Toast.makeText(this, "Please enter a valid number", Toast.LENGTH_SHORT).show()
+        // Add a TextWatcher to save the input automatically on change
+        editText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // No action needed before text changes
             }
-        }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Save the input only if it's a valid number
+                val newGoal = s.toString().toIntOrNull()
+                if (newGoal != null) {
+                    lifecycleScope.launch {
+                        saveWaterGoal(newGoal) // Save the new goal to DataStore
+                        Toast.makeText(this@SettingsActivity, "Goal saved successfully!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // No action needed after text changes
+            }
+        })
     }
 
     // Function to save the water goal to DataStore
