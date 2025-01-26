@@ -38,7 +38,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         resetAtMidnight()
-
         updateDisplayedAmounts()
 
         val settingsButton: Button = findViewById(R.id.button2)
@@ -52,6 +51,11 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, WaterPourActivity::class.java)
             waterPourLauncher.launch(intent)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateDisplayedAmounts() // Reload data every time the activity is resumed
     }
 
     private fun resetAtMidnight() {
@@ -104,9 +108,7 @@ class MainActivity : AppCompatActivity() {
 
                 lifecycleScope.launch {
                     val currentTodayAmount = readFromDataStore(todayAmountKey).first()
-
                     writeToDataStore(todayAmountKey, currentTodayAmount + addedAmount)
-
                     updateDisplayedAmounts()
                 }
             }

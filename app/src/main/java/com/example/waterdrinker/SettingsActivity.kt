@@ -6,6 +6,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -60,15 +61,13 @@ class SettingsActivity : AppCompatActivity() {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                     val newGoal = s.toString().toIntOrNull()
-                    if (newGoal != null) {
-                        if (newGoal in 0..4000) {
-                            lifecycleScope.launch {
-                                saveWaterGoal(newGoal)
-                                Toast.makeText(this@SettingsActivity, "Goal saved successfully!", Toast.LENGTH_SHORT).show()
-                            }
-                        } else {
-                            Toast.makeText(this@SettingsActivity, "Please enter a value between 0 and 4000", Toast.LENGTH_SHORT).show()
+                    if (newGoal != null && newGoal in 0..4000) {
+                        lifecycleScope.launch {
+                            saveWaterGoal(newGoal)
+                            Toast.makeText(this@SettingsActivity, "Goal saved successfully!", Toast.LENGTH_SHORT).show()
                         }
+                    } else {
+                        Toast.makeText(this@SettingsActivity, "Please enter a value between 0 and 4000", Toast.LENGTH_SHORT).show()
                     }
                 }
                 override fun afterTextChanged(s: Editable?) {}
@@ -89,10 +88,10 @@ class SettingsActivity : AppCompatActivity() {
     private suspend fun readWaterGoal(): Int {
         return try {
             val preferences = dataStore.data.first()
-            preferences[waterGoalKey] ?: 300 // Default value is 300 ml
+            preferences[waterGoalKey] ?: 300 // Default value
         } catch (e: Exception) {
             e.printStackTrace()
-            300 // Default value in case of error
+            300 // Return default value if there's an error
         }
     }
 }
