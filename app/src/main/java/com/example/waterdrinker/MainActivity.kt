@@ -71,9 +71,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun writeToDataStore(key: Preferences.Key<Int>, value: Int) {
-        lifecycleScope.launch {
-            dataStore.edit { preferences -> preferences[key] = value }
+    private suspend fun writeToDataStore(key: Preferences.Key<Int>, value: Int) {
+        dataStore.edit { preferences ->
+            preferences[key] = value
         }
     }
 
