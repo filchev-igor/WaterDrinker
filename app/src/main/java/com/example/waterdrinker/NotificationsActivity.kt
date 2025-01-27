@@ -173,28 +173,9 @@ class NotificationsActivity : AppCompatActivity() {
 
         // Delete the alarm from DataStore by setting its value to -1 (or any invalid value)
         DataStoreManager.saveValue(this, key, -1)
-    }
 
-    private suspend fun loadAlarms() {
-        // Retrieve all alarms from DataStore
-        val alarms = mutableSetOf<String>()
-
-        // Example: Load alarms with keys like "alarm_1230"
-        for (i in 0..23) {
-            for (j in 0..59) {
-                val alarmTime = String.format("%02d%02d", i, j)
-                val key = intPreferencesKey("$ALARMS_KEY_PREFIX$alarmTime")
-                val alarmInt = DataStoreManager.readValue(this, key, -1)
-                if (alarmInt != -1) {
-                    alarms.add("${alarmTime.substring(0, 2)}:${alarmTime.substring(2)}")
-                }
-            }
-        }
-
-        // Add each alarm to the UI
-        for (alarm in alarms) {
-            addAlarmToLayout(alarm)
-        }
+        // Cancel the scheduled alarm
+        cancelAlarm(alarmTime)
     }
 
     private fun scheduleAlarm(alarmTime: String) {
@@ -224,5 +205,44 @@ class NotificationsActivity : AppCompatActivity() {
         )
 
         Log.d("NotificationsActivity", "Alarm scheduled for $alarmTime")
+    }
+
+    private fun cancelAlarm(alarmTime: String) {
+        // Create an Intent for the AlarmReceiver
+        val intent = Intent(this, AlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            alarmTime.hashCode(), // Use the same request code as when scheduling
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // Cancel the alarm
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(pendingIntent)
+
+        Log.d("NotificationsActivity", "Alarm canceled for $alarmTime")
+    }
+
+    private suspend fun loadAlarms() {
+        // Retrieve all alarms from DataStore
+        val alarms = mutableSetOf<String>()
+
+        // Example: Load alarms with keys like "alarm_1230"
+        for (i in 0..23) {
+            for (j in 0..59) {
+                val alarmTime = String.format("%02d%02d", i, j)
+                val key = intPreferencesKey("$ALARMS_KEY_PREFIX$alarmTime")
+                val alarmInt = DataStoreManager.readValue(this, key, -1)
+                if (alarmInt != -1) {
+                    alarms.add("${alarmTime.substring(0, 2)}:${alarmTime.substring(2)}")
+                }
+            }
+        }
+
+        // Add each alarm to the UI
+        for (alarm in alarms) {
+            addAlarmToLayout(alarm)
+        }
     }
 }
