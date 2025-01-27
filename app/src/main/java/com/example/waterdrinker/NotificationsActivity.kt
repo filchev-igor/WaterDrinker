@@ -1,11 +1,17 @@
 package com.example.waterdrinker
 
+import android.app.AlertDialog
 import android.app.TimePickerDialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -69,14 +75,74 @@ class NotificationsActivity : AppCompatActivity() {
     }
 
     private fun addAlarmToLayout(alarmTime: String) {
+        // Create a horizontal LinearLayout to hold the alarm text and delete button
+        val alarmItemLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+
         // Create a TextView to display the alarm time
         val textView = TextView(this).apply {
             text = alarmTime
             textSize = 18f
             setPadding(16, 16, 16, 16)
+            layoutParams = LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+            )
         }
-        // Add the TextView to the LinearLayout
-        alarmsLayout.addView(textView)
+
+        // Create a Button to delete the alarm
+        val deleteButton = Button(this).apply {
+            text = "Delete"
+            setOnClickListener {
+                // Show a confirmation dialog before deleting the alarm
+                showDeleteConfirmationDialog(alarmTime, alarmItemLayout)
+            }
+        }
+
+        // Add the TextView and Button to the horizontal LinearLayout
+        alarmItemLayout.addView(textView)
+        alarmItemLayout.addView(deleteButton)
+
+        // Add the horizontal LinearLayout to the main alarms LinearLayout
+        alarmsLayout.addView(alarmItemLayout)
+    }
+
+    private fun showDeleteConfirmationDialog(alarmTime: String, alarmItemLayout: LinearLayout) {
+        // Create an AlertDialog to confirm deletion
+        val alertDialog = AlertDialog.Builder(this)
+            .setTitle("Delete Alarm")
+            .setMessage("Are you sure you want to delete the alarm $alarmTime?")
+            .setPositiveButton("OK") { dialog, _ ->
+                // Remove the alarm from the UI
+                alarmsLayout.removeView(alarmItemLayout)
+                // Delete the alarm from DataStore
+                lifecycleScope.launch {
+                    deleteAlarm(alarmTime)
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+
+        // Show the dialog
+        alertDialog.show()
+
+        // Customize button colors
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#ed750c")))
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(
+            ContextCompat.getColor(this, android.R.color.white)
+        )
+        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(
+            ContextCompat.getColor(this, android.R.color.black)
+        )
     }
 
     private suspend fun saveAlarm(alarmTime: String) {
@@ -90,14 +156,22 @@ class NotificationsActivity : AppCompatActivity() {
         DataStoreManager.saveValue(this, key, alarmInt)
     }
 
+    private suspend fun deleteAlarm(alarmTime: String) {
+        // Convert the alarm time to an Int (e.g., "12:30" -> 1230)
+        val alarmInt = alarmTime.replace(":", "").toIntOrNull() ?: return
+
+        // Generate the key for the alarm
+        val key = intPreferencesKey("$ALARMS_KEY_PREFIX$alarmInt")
+
+        // Delete the alarm from DataStore by setting its value to -1 (or any invalid value)
+        DataStoreManager.saveValue(this, key, -1)
+    }
+
     private suspend fun loadAlarms() {
         // Retrieve all alarms from DataStore
-        // Note: This approach assumes you know the key format for alarms
-        // In a real app, you might need to store a list of keys separately
         val alarms = mutableSetOf<String>()
 
         // Example: Load alarms with keys like "alarm_1230"
-        // This is a simplified approach; you might need a more robust solution
         for (i in 0..23) {
             for (j in 0..59) {
                 val alarmTime = String.format("%02d%02d", i, j)
