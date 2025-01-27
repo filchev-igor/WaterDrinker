@@ -42,6 +42,19 @@ class NotificationsActivity : AppCompatActivity() {
             insets
         }
 
+
+        val mainActivityButton: Button = findViewById(R.id.button)
+        mainActivityButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+
+        val settingsActivityButton: Button = findViewById(R.id.button2)
+        settingsActivityButton.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
+
         // Initialize the LinearLayout for alarms
         alarmsLayout = findViewById(R.id.linearLayout)
 

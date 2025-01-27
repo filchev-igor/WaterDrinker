@@ -6,6 +6,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -34,6 +35,12 @@ class SettingsActivity : AppCompatActivity() {
         val mainActivityButton: Button = findViewById(R.id.button)
         mainActivityButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+
+        val notificationsActivityButton: ImageView = findViewById(R.id.imageView)
+        notificationsActivityButton.setOnClickListener {
+            val intent = Intent(this, NotificationsActivity::class.java)
             startActivity(intent)
         }
 
