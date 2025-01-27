@@ -1,10 +1,15 @@
 package com.example.waterdrinker
 
+import android.app.AlarmManager
 import android.app.AlertDialog
+import android.app.PendingIntent
 import android.app.TimePickerDialog
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
@@ -154,6 +159,9 @@ class NotificationsActivity : AppCompatActivity() {
 
         // Save the alarm using DataStoreManager
         DataStoreManager.saveValue(this, key, alarmInt)
+
+        // Schedule the alarm
+        scheduleAlarm(alarmTime)
     }
 
     private suspend fun deleteAlarm(alarmTime: String) {
@@ -187,5 +195,34 @@ class NotificationsActivity : AppCompatActivity() {
         for (alarm in alarms) {
             addAlarmToLayout(alarm)
         }
+    }
+
+    private fun scheduleAlarm(alarmTime: String) {
+        // Convert the alarm time to a Calendar instance
+        val calendar = Calendar.getInstance().apply {
+            val (hour, minute) = alarmTime.split(":").map { it.toInt() }
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+        }
+
+        // Create an Intent for the AlarmReceiver
+        val intent = Intent(this, AlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            alarmTime.hashCode(), // Use a unique request code for each alarm
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // Schedule the alarm
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            pendingIntent
+        )
+
+        Log.d("NotificationsActivity", "Alarm scheduled for $alarmTime")
     }
 }
